@@ -247,6 +247,10 @@ class NINJSFormatter(Formatter):
         if article.get('authors'):
             ninjs['authors'] = self._format_authors(article)
 
+        if 'extra' in ninjs:
+            if article.get('unique_name'):
+                ninjs['extra'].update({'unique_name': article.get('unique_name')})
+
         if (article.get('schedule_settings') or {}).get('utc_publish_schedule'):
             ninjs['publish_schedule'] = article['schedule_settings']['utc_publish_schedule']
 
