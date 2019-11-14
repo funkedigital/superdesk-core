@@ -73,6 +73,33 @@ def format_cv_item(item, language):
         'scheme': item.get('scheme')
     })
 
+def _get_data_layer(article):
+    """Get the data layer infos"""
+
+    item = list(
+        superdesk.get_resource_service('archive_history').get(req=None, lookup={
+            'item_id': article.get('family_id'), 'operation': 'correct'}))
+
+    data_layer = {}
+    if item:
+        if item[-2]:
+            data_layer['previousTitle'] = item[-2]['update']['headline']
+        if item[-1]:
+            data_layer['correctionCount'] = len(item)
+            data_layer['wordCount'] = item[-1]['update']['word_count']
+
+            # find external links
+            external_urls = re.findall(
+                'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+] | [! * \(\),] | (?: %[0-9a-fA-F][0-9a-fA-F]))+',
+                item[-1]['update']['body_html'])
+            data_layer['ExternalLinksCount'] = len(external_urls)
+
+            # find internal links
+            internal_urls = re.findall('<a\s+href=["\']urn:newsml:localhost:([^"\']+)["\']',
+                                       item[-1]['update']['body_html'])
+            data_layer['InternalLinksCount'] = len(internal_urls)
+
+    return data_layer
 
 class NINJSFormatter(Formatter):
     """
@@ -246,6 +273,10 @@ class NINJSFormatter(Formatter):
 
         if article.get('authors'):
             ninjs['authors'] = self._format_authors(article)
+
+        data_layer = _get_data_layer(article)
+        if data_layer:
+            ninjs["extra"].update({"dataLayer": data_layer})
 
         if (article.get('schedule_settings') or {}).get('utc_publish_schedule'):
             ninjs['publish_schedule'] = article['schedule_settings']['utc_publish_schedule']
