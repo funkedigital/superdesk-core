@@ -249,7 +249,7 @@ class NINJSFormatter(Formatter):
 
         if 'extra' in ninjs:
             if article.get('unique_name'):
-                ninjs['extra'].update({'unique_name': article.get('unique_name')})
+                ninjs['extra'].update({'unique_name': article.get('unique_name').replace('#', '')})
 
         if (article.get('schedule_settings') or {}).get('utc_publish_schedule'):
             ninjs['publish_schedule'] = article['schedule_settings']['utc_publish_schedule']
