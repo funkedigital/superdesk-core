@@ -28,7 +28,6 @@
 
 """
 
-
 import json
 import superdesk
 import logging
@@ -73,6 +72,7 @@ def format_cv_item(item, language):
         'scheme': item.get('scheme')
     })
 
+
 def _get_data_layer(article, wordcount):
     """Get the data layer infos"""
 
@@ -106,10 +106,10 @@ def _get_data_layer(article, wordcount):
 
         data_layer['socialEmbedCount'] = social_embed
 
-        # facebook social embedding count
-        facebook_embed = re.findall('iframe',
-                                    article.get('body_html'))
-        if len(facebook_embed) != 0:
+        # check if videos exist in the body
+        video_iframes = re.findall('<iframe',
+                                   article.get('body_html'))
+        if len(video_iframes) != 0:
             video_inline = True
 
         data_layer['videoInline'] = video_inline
@@ -471,9 +471,9 @@ class NINJSFormatter(Formatter):
                 locators = [l for l in locator_map.get('items', []) if l['qcode'] == item.get('qcode')]
                 if locators and len(locators) == 1:
                     return locators[0].get('state') or \
-                        locators[0].get('country') or \
-                        locators[0].get('world_region') or \
-                        locators[0].get('group')
+                           locators[0].get('country') or \
+                           locators[0].get('world_region') or \
+                           locators[0].get('group')
             return item.get('name')
 
         places = []
