@@ -85,6 +85,26 @@ def _get_data_layer(article, wordcount):
     if article:
         data_layer['wordcount'] = wordcount
 
+        # get the social embedding count
+        social_embed = 0
+
+        # instagram social embedding count
+        insta_embed = re.findall('data-instgrm-permalink',
+                                 article.get('body_html'))
+        social_embed = social_embed + len(insta_embed)
+
+        # twitter social embedding count
+        twitter_embed = re.findall('twitter-tweet',
+                                   article.get('body_html'))
+        social_embed = social_embed + len(twitter_embed)
+
+        # facebook social embedding count
+        facebook_embed = re.findall('fb-post',
+                                    article.get('body_html'))
+        social_embed = social_embed + len(facebook_embed)
+
+        data_layer['socialEmbedCount'] = social_embed
+
         # if first published version
         if len(item) == 0:
             data_layer['correctionCount'] = 0
@@ -96,7 +116,7 @@ def _get_data_layer(article, wordcount):
             # find external links
             external_urls = re.findall(
                 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+] | [! * \(\),] | (?: %[0-9a-fA-F][0-9a-fA-F]))+',
-                item[-1]['update']['body_html'])
+                article.get('body_html'))
             if external_urls:
                 data_layer['externalLink'] = True
                 data_layer['ExternalLinksCount'] = len(external_urls)
@@ -105,7 +125,7 @@ def _get_data_layer(article, wordcount):
 
             # find internal links
             internal_urls = re.findall('<a\s+href=["\']urn:newsml:localhost:([^"\']+)["\']',
-                                       item[-1]['update']['body_html'])
+                                       article.get('body_html'))
             if internal_urls:
                 data_layer['internalLink'] = True
                 data_layer['InternalLinksCount'] = len(internal_urls)
