@@ -87,6 +87,7 @@ def _get_data_layer(article, wordcount):
 
         # get the social embedding count
         social_embed = 0
+        video_inline = False
 
         # instagram social embedding count
         insta_embed = re.findall('data-instgrm-permalink',
@@ -104,6 +105,14 @@ def _get_data_layer(article, wordcount):
         social_embed = social_embed + len(facebook_embed)
 
         data_layer['socialEmbedCount'] = social_embed
+
+        # facebook social embedding count
+        facebook_embed = re.findall('iframe',
+                                    article.get('body_html'))
+        if len(facebook_embed) != 0:
+            video_inline = True
+
+        data_layer['videoInline'] = video_inline
 
         # if first published version
         if len(item) == 0:
@@ -133,6 +142,7 @@ def _get_data_layer(article, wordcount):
                 data_layer['internalLink'] = False
 
     return data_layer
+
 
 class NINJSFormatter(Formatter):
     """
