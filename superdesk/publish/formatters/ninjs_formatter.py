@@ -107,7 +107,7 @@ def _get_data_layer(article, wordcount):
         data_layer['socialEmbedCount'] = social_embed
 
         # check if videos exist in the body
-        video_iframes = re.findall('<iframe',
+        video_iframes = re.findall('<iframe>',
                                    article.get('body_html'))
         if len(video_iframes) != 0:
             video_inline = True
