@@ -111,6 +111,8 @@ def _get_data_layer(article, wordcount):
                                    article.get('body_html'))
         if len(video_iframes) != 0:
             video_inline = True
+        else:
+            video_inline = False
 
         data_layer['videoInline'] = video_inline
 
@@ -131,6 +133,7 @@ def _get_data_layer(article, wordcount):
                 data_layer['ExternalLinksCount'] = len(external_urls)
             else:
                 data_layer['externalLink'] = False
+                data_layer['ExternalLinksCount'] = 0
 
             # find internal links
             internal_urls = re.findall('<a\s+href=["\']urn:newsml:localhost:([^"\']+)["\']',
@@ -140,6 +143,7 @@ def _get_data_layer(article, wordcount):
                 data_layer['InternalLinksCount'] = len(internal_urls)
             else:
                 data_layer['internalLink'] = False
+                data_layer['InternalLinksCount'] = 0
 
     return data_layer
 
