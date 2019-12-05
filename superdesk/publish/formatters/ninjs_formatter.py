@@ -76,10 +76,6 @@ def format_cv_item(item, language):
 def _get_data_layer(article, wordcount):
     """Get the data layer infos"""
 
-    item = list(
-        superdesk.get_resource_service('archive_history').get(req=None, lookup={
-            'item_id': article.get('family_id'), 'operation': 'correct'}))
-
     data_layer = {}
 
     if article:
@@ -116,34 +112,43 @@ def _get_data_layer(article, wordcount):
 
         data_layer['videoInline'] = video_inline
 
+        # find external links
+        external_urls = re.findall(
+            'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+] | [! * \(\),] | (?: %[0-9a-fA-F][0-9a-fA-F]))+',
+            article.get('body_html'))
+        if external_urls:
+            data_layer['externalLink'] = True
+            data_layer['ExternalLinksCount'] = len(external_urls)
+        else:
+            data_layer['externalLink'] = False
+            data_layer['ExternalLinksCount'] = 0
+
+        # find internal links
+        internal_urls = re.findall('<a\s+href=["\']urn:newsml:localhost:([^"\']+)["\']',
+                                   article.get('body_html'))
+        if internal_urls:
+            data_layer['internalLink'] = True
+            data_layer['InternalLinksCount'] = len(internal_urls)
+        else:
+            data_layer['internalLink'] = False
+            data_layer['InternalLinksCount'] = 0
+
+        item = list(
+            superdesk.get_resource_service('archive_history').get(req=None, lookup={
+                'item_id': article.get('family_id'), 'operation': 'correct'}))
+
+        data_layer['countOfChanges'] = len(item)
+
         # if first published version
         if len(item) == 0:
             data_layer['correctionCount'] = 0
         else:
-            data_layer['previousTitle'] = item[-2]['update']['headline']
+            if len(item) == 1:
+                data_layer['previousTitle'] = item[0]['update']['headline']
+            else:
+                data_layer['previousTitle'] = item[-2]['update']['headline']
             data_layer['pageRepublished'] = True
             data_layer['correctionCount'] = len(item)
-
-            # find external links
-            external_urls = re.findall(
-                'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+] | [! * \(\),] | (?: %[0-9a-fA-F][0-9a-fA-F]))+',
-                article.get('body_html'))
-            if external_urls:
-                data_layer['externalLink'] = True
-                data_layer['ExternalLinksCount'] = len(external_urls)
-            else:
-                data_layer['externalLink'] = False
-                data_layer['ExternalLinksCount'] = 0
-
-            # find internal links
-            internal_urls = re.findall('<a\s+href=["\']urn:newsml:localhost:([^"\']+)["\']',
-                                       article.get('body_html'))
-            if internal_urls:
-                data_layer['internalLink'] = True
-                data_layer['InternalLinksCount'] = len(internal_urls)
-            else:
-                data_layer['internalLink'] = False
-                data_layer['InternalLinksCount'] = 0
 
     return data_layer
 
