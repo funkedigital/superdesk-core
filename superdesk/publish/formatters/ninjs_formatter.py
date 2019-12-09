@@ -73,12 +73,37 @@ def format_cv_item(item, language):
     })
 
 
+def _get_content_type(article):
+    """Get content type"""
+
+    try:
+        profile = article['profile']
+    except KeyError:
+        logger.warning("missing profile in article (guid: {guid})".format(guid=article.get("guid")))
+        return ""
+    else:
+        content_profile = superdesk.get_resource_service("content_types").find_one(
+            _id=profile, req=None)
+        if content_profile:
+            content_type = ''
+            if content_profile['label']:
+                for c in content_profile['label'].split('_'):
+                    content_type += c[0]
+            return content_type
+        else:
+            return ""
+
 def _get_data_layer(article, wordcount):
     """Get the data layer infos"""
 
     data_layer = {}
 
     if article:
+
+        content_type = _get_content_type(article)
+        if content_type:
+            data_layer['contentType'] = content_type
+
         data_layer['wordcount'] = wordcount
 
         # get the social embedding count
