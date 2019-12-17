@@ -318,7 +318,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     'saved_searches:report': {
         'task': 'apps.saved_searches.report',
-        'schedule': timedelta(minutes=1)
+        'schedule': crontab(minute=0),
     },
 }
 
@@ -409,6 +409,7 @@ CORE_APPS.extend([
     'apps.auth',
     'apps.archive',
     'apps.archive.item_comments',
+    'apps.archive.autocomplete',
     'apps.archive_history',
     'apps.stages',
     'apps.desks',
@@ -624,6 +625,12 @@ FTP_TIMEOUT = 300
 #: default amount of files which can processed during one iteration of ftp ingest
 FTP_INGEST_FILES_LIST_LIMIT = 100
 
+#: after how many minutes consider content to be too old for ingestion
+#:
+#: .. versionadded:: 1.32.2
+#:
+FILE_INGEST_OLD_CONTENT_MINUTES = 10
+
 #: default timeout for email connections
 EMAIL_TIMEOUT = 10
 
@@ -676,7 +683,11 @@ HTML_TAGS_WHITELIST = ('h1', 'h2', 'h3', 'h4', 'h6', 'blockquote', 'pre', 'figur
 # Japanese reading speed
 JAPANESE_CHARACTERS_PER_MINUTE = 600
 
+#: publish associated items automatically
 PUBLISH_ASSOCIATED_ITEMS = False
+
+#: raise error when published item is not queued to any subscriber
+PUBLISH_NOT_QUEUED_ERROR = True
 
 # Use content profile for validation when auto-publishing
 AUTO_PUBLISH_CONTENT_PROFILE = True
@@ -746,3 +757,30 @@ NO_CUSTOM_CROPS = strtobool(env('NO_CUSTOM_CROPS', 'false'))
 #: how long an authorisation token is valid (in seconds)
 AUTH_SERVER_EXPIRATION_DELAY = env('AUTH_SERVER_EXPIRATION_TIME', 60 * 60 * 24)  # 1 day by default
 AUTH_SERVER_SHARED_SECRET = env('AUTH_SERVER_SHARED_SECRET', '')
+
+#: Add missing keywords to *keywords* vocabulary when item is published
+#:
+#: .. versionadded:: 2.0
+#:
+KEYWORDS_ADD_MISSING_ON_PUBLISH = False
+
+
+#: Enable archive autocomplete API
+#:
+#: .. versionadded:: 2.0
+#:
+#: It will return suggestions for field from archive api,
+#: only from published items for time defined via
+#: :data:`ARCHIVE_AUTOCOMPLETE_DAYS` and :data:`ARCHIVE_AUTOCOMPLETE_HOURS`.
+#:
+ARCHIVE_AUTOCOMPLETE = False
+
+#:
+#: .. versionadded:: 2.0
+#:
+ARCHIVE_AUTOCOMPLETE_DAYS = 0
+
+#:
+#: .. versionadded:: 2.0
+#:
+ARCHIVE_AUTOCOMPLETE_HOURS = 0

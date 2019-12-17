@@ -1,5 +1,7 @@
 .. _settings:
 
+.. module:: superdesk.default_settings
+
 =============
 Configuration
 =============
@@ -624,5 +626,11 @@ Example::
 
 Default: ``None``
 
-When configured it will enable ``/places_autocomplete`` service and client will use it
-for place field searching.
+When configured it will enable ``/places_autocomplete`` service and client
+will use it for place field searching.
+
+.. autodata:: KEYWORDS_ADD_MISSING_ON_PUBLISH
+
+.. autodata:: ARCHIVE_AUTOCOMPLETE
+.. autodata:: ARCHIVE_AUTOCOMPLETE_DAYS
+.. autodata:: ARCHIVE_AUTOCOMPLETE_HOURS

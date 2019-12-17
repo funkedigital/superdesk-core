@@ -34,6 +34,7 @@ import superdesk
 import logging
 import re
 
+from flask import current_app as app
 from eve.utils import config
 from superdesk.publish.formatters import Formatter
 from superdesk.errors import FormatterError
@@ -381,7 +382,14 @@ class NINJSFormatter(Formatter):
 
     def _format_rendition(self, rendition):
         """Format single rendition using fields whitelist."""
-        return {field: rendition[field] for field in self.rendition_properties if field in rendition}
+        formatted = {}
+        for field in self.rendition_properties:
+            if not rendition.get(field):
+                continue
+            formatted[field] = rendition[field]
+            if field in ('width', 'height'):
+                formatted[field] = int(rendition[field])
+        return formatted
 
     def _format_place(self, article):
         vocabularies_service = superdesk.get_resource_service('vocabularies')
@@ -426,16 +434,17 @@ class NINJSFormatter(Formatter):
         attachments_service = superdesk.get_resource_service('attachments')
         for attachment_ref in article['attachments']:
             attachment = attachments_service.find_one(req=None, _id=attachment_ref['attachment'])
-            output.append({
-                'id': str(attachment['_id']),
-                'title': attachment['title'],
-                'description': attachment['description'],
-                'filename': attachment['filename'],
-                'mimetype': attachment['mimetype'],
-                'length': attachment.get('length'),
-                'media': str(attachment['media']),
-                'href': '/assets/{}'.format(str(attachment['media'])),
-            })
+            if superdesk.attachments.is_attachment_public(attachment): # don't save internal attachments
+                output.append({
+                    'id': str(attachment['_id']),
+                    'title': attachment['title'],
+                    'description': attachment['description'],
+                    'filename': attachment['filename'],
+                    'mimetype': attachment['mimetype'],
+                    'length': attachment.get('length'),
+                    'media': str(attachment['media']),
+                    'href': '/assets/{}'.format(str(attachment['media'])),
+                })
         return output
 
     def _format_authors(self, article):
@@ -498,3 +507,33 @@ class NINJSFormatter(Formatter):
             return formatted_doc.replace('\'\'', '\'')
         else:
             raise Exception()
+
+
+class NINJS2Formatter(NINJSFormatter):
+    """NINJS formatter v2
+
+    .. versionadded:: 2.0
+
+    Extending :py:class:`NINJSFormatter` to avoid breaking changes.
+
+    *Changes*:
+
+    - user ``correction_sequence`` for ``version`` field, so it's 1, 2, 3, ... in the output
+    - add ``rewrite_sequence`` field
+    - add ``rewrite_of`` field
+
+    """
+
+    direct_copy_properties = NINJSFormatter.direct_copy_properties + (
+        'rewrite_sequence',
+        'rewrite_of',
+    )
+
+    def __init__(self):
+        super().__init__()
+        self.format_type = 'ninjs2'
+
+    def _transform_to_ninjs(self, article, subscriber, recursive=True):
+        ninjs = super()._transform_to_ninjs(article, subscriber, recursive)
+        ninjs['version'] = str(article.get('correction_sequence', 1))
+        return ninjs
