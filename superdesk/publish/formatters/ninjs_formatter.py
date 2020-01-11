@@ -76,6 +76,26 @@ def format_cv_item(item, language):
     })
 
 
+def _get_content_type(article):
+    """Get content type"""
+
+    try:
+        profile = article['profile']
+    except KeyError:
+        logger.warning("missing profile in article (guid: {guid})".format(guid=article.get("guid")))
+        return ""
+    else:
+        content_profile = superdesk.get_resource_service("content_types").find_one(
+            _id=profile, req=None)
+        if content_profile:
+            content_type = ''
+            if content_profile['label']:
+                for c in content_profile['label'].split('_'):
+                    content_type += c[0]
+            return content_type
+        else:
+            return ""
+
 class NINJSFormatter(Formatter):
     """
     The schema we use for the ninjs format is an extension
@@ -258,6 +278,13 @@ class NINJSFormatter(Formatter):
                 ninjs["extra"].update({"noFollow": True})
             if article.get('flags', {}).get('allowComments'):
                 ninjs["extra"].update({"allowComments": True})
+            if article.get('family_id'):
+                ninjs["extra"].update({"family_id": article.get('family_id')})
+            content_type = _get_content_type(article)
+            if content_type:
+                ninjs["extra"].update({"content_type": content_type})
+            if article.get('unique_name'):
+                ninjs['extra'].update({'unique_name': article.get('unique_name').replace('#', '')})
 
         if (article.get('schedule_settings') or {}).get('utc_publish_schedule'):
             ninjs['publish_schedule'] = article['schedule_settings']['utc_publish_schedule']
