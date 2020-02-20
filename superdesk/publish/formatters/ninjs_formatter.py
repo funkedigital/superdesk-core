@@ -121,14 +121,14 @@ def _get_data_layer(article, wordcount):
         social_embed = social_embed + len(twitter_embed)
 
         # facebook social embedding count
-        facebook_embed = re.findall('fb-post',
+        facebook_embed = re.findall('<iframe src="https://www.facebook.com/plugins/post.php',
                                     article.get('body_html'))
         social_embed = social_embed + len(facebook_embed)
 
         data_layer['socialEmbedCount'] = social_embed
 
         # check if videos exist in the body
-        video_iframes = re.findall('<iframe>',
+        video_iframes = re.findall('<iframe',
                                    article.get('body_html'))
         if len(video_iframes) != 0:
             video_inline = True
