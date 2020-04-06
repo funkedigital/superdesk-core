@@ -323,6 +323,8 @@ class NINJSFormatter(Formatter):
                 ninjs["extra"].update({"dataLayer": data_layer})
             if article.get('flags', {}).get('republishing_tmp'):
                 ninjs["extra"].update({"republish": True})
+            else:
+                ninjs["extra"].update({"republish": False})
             if article.get('flags', {}).get('advertising'):
                 ninjs["extra"].update({"advertising": True})
             if article.get('flags', {}).get('noIndex'):
