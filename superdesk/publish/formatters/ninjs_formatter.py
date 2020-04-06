@@ -75,6 +75,25 @@ def format_cv_item(item, language):
         'scheme': item.get('scheme')
     })
 
+def _get_content_type(article):
+    """Get content type"""
+
+    try:
+        profile = article['profile']
+    except KeyError:
+        logger.warning("missing profile in article (guid: {guid})".format(guid=article.get("guid")))
+        return ""
+    else:
+        content_profile = superdesk.get_resource_service("content_types").find_one(
+            _id=profile, req=None)
+        if content_profile:
+            content_type = ''
+            if content_profile['label']:
+                for c in content_profile['label'].split('_'):
+                    content_type += c[0]
+            return content_type
+        else:
+            return ""
 
 class NINJSFormatter(Formatter):
     """
@@ -250,6 +269,10 @@ class NINJSFormatter(Formatter):
             ninjs['authors'] = self._format_authors(article)
 
         if 'extra' in ninjs:
+            # get the article's content type
+            content_type = _get_content_type(article)
+            if content_type:
+                ninjs["extra"].update({"contentType": content_type})
             if article.get('flags', {}).get('advertising'):
                 ninjs["extra"].update({"advertising": True})
             if article.get('flags', {}).get('noIndex'):
