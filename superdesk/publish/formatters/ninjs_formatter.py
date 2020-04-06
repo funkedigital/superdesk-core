@@ -321,6 +321,8 @@ class NINJSFormatter(Formatter):
             data_layer = _get_data_layer(article, word_count)
             if data_layer:
                 ninjs["extra"].update({"dataLayer": data_layer})
+            if article.get('flags', {}).get('republishing_tmp'):
+                ninjs["extra"].update({"republish": True})
             if article.get('flags', {}).get('advertising'):
                 ninjs["extra"].update({"advertising": True})
             if article.get('flags', {}).get('noIndex'):

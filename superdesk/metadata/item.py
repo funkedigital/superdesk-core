@@ -561,7 +561,15 @@ metadata_schema = {
             'allowComments': {
                 'type': 'boolean',
                 'default': False
-            }	            
+            },
+            'republishing': {
+                'type': 'boolean',
+                'default': False
+            },
+            'republishing_tmp': {
+                'type': 'boolean',
+                'default': False
+            }	                        
         }
     },
 
