@@ -269,6 +269,9 @@ class NINJSFormatter(Formatter):
             ninjs['authors'] = self._format_authors(article)
 
         if 'extra' in ninjs:
+            #get the unique name
+            if article.get('unique_name'):
+                ninjs['extra'].update({'uniqueName': article.get('unique_name').replace('#', '')})
             # get the article's content type
             content_type = _get_content_type(article)
             if content_type:
