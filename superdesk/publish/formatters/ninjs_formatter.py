@@ -95,6 +95,51 @@ def _get_content_type(article):
         else:
             return ""
 
+def _get_data_layer(article, wordcount):
+    """Get the data layer infos"""
+
+    data_layer = {}
+
+    if article:
+
+        # add content type
+        content_type = _get_content_type(article)
+        if content_type:
+            data_layer['contentType'] = content_type
+
+        # add word count
+        data_layer['wordcount'] = wordcount
+
+        # add internal links count
+        internal_urls = re.findall('<a\s+href=["\']urn:newsml:localhost:([^"\']+)["\']',
+                                   article.get('body_html'))
+        if internal_urls:
+            data_layer['internalLink'] = True
+            data_layer['InternalLinksCount'] = len(internal_urls)
+        else:
+            data_layer['internalLink'] = False
+            data_layer['InternalLinksCount'] = 0
+
+        item = list(
+            superdesk.get_resource_service('archive_history').get(req=None, lookup={
+                'item_id': article.get('family_id'), 'operation': 'correct'}))
+
+        # if first published version
+        if len(item) == 0:
+            data_layer['correctionCount'] = 0
+            data_layer['pageRepublished'] = False
+        else:
+            if len(item) == 1:
+                data_layer['previousTitle'] = item[0]['update']['headline']
+                data_layer['correctionCount'] = 1
+                data_layer['pageRepublished'] = True
+            else:
+                data_layer['previousTitle'] = item[-2]['update']['headline']
+                data_layer['pageRepublished'] = True
+                data_layer['correctionCount'] = len(item)
+
+    return data_layer
+
 class NINJSFormatter(Formatter):
     """
     The schema we use for the ninjs format is an extension
@@ -272,10 +317,10 @@ class NINJSFormatter(Formatter):
             #get the unique name
             if article.get('unique_name'):
                 ninjs['extra'].update({'uniqueName': article.get('unique_name').replace('#', '')})
-            # get the article's content type
-            content_type = _get_content_type(article)
-            if content_type:
-                ninjs["extra"].update({"contentType": content_type})
+            # get the data layer infos
+            data_layer = _get_data_layer(article, word_count)
+            if data_layer:
+                ninjs["extra"].update({"dataLayer": data_layer})
             if article.get('flags', {}).get('advertising'):
                 ninjs["extra"].update({"advertising": True})
             if article.get('flags', {}).get('noIndex'):
