@@ -7,6 +7,7 @@ from superdesk.io.registry import register_feed_parser
 from superdesk.io.feed_parsers import XMLFeedParser
 from superdesk.metadata.item import ITEM_TYPE, CONTENT_TYPE
 from superdesk.metadata.utils import is_normal_package
+from superdesk.utc import utc
 from lxml import etree
 
 logger = logging.getLogger(__name__)
@@ -25,7 +26,6 @@ class XMLIFeedParser(XMLFeedParser):
     def parse(self, xml, provider=None):
         items = {}
         try:
-            self.root = xml
             self.parse_news_identifier(items, xml)
             self.parse_newslines(items, xml)
             self.parse_news_management(items, xml)
@@ -71,7 +71,7 @@ class XMLIFeedParser(XMLFeedParser):
         for i in propertites:
             if i.get('FormalName', '') == 'DateLine':
                 self.set_dateline(items, text=i.get('Value', ''))
-            if i.get('FormalName', '') != '':
+            elif i.get('FormalName', '') != '':
                 items[(i.get('FormalName')).lower()] = i.get('Value', '')
 
     def parse_elements(self, tree):
@@ -90,6 +90,6 @@ class XMLIFeedParser(XMLFeedParser):
         try:
             return datetime.datetime.strptime(string, '%Y%m%dT%H%M%S+0100')
         except ValueError:
-            return datetime.datetime.strptime(string, '%Y%m%dT%H%M%SZ').replace(tzinfo=utc)
+            return datetime.datetime.strptime(string, '%Y-%m-%d %H:%M:%S.0').replace(tzinfo=utc)
 
-register_feed_parser(XMLIFeedParser.NAME, XMLIFeedParser())        
+register_feed_parser(XMLIFeedParser.NAME, XMLIFeedParser())

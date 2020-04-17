@@ -264,3 +264,4 @@ from superdesk.io.feeding_services.twitter import TwitterFeedingService  # NOQA
 from superdesk.io.feeding_services.ap import APFeedingService  # NOQA
 from superdesk.io.feeding_services.bbc_ldrs import BBCLDRSFeedingService # NOQA
 from superdesk.io.feeding_services.ap_media import APMediaFeedingService # NOQA
+from superdesk.io.feeding_services.funke_xmli import FUNKEXMLIFeedingService # NOQA
