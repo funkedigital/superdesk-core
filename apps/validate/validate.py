@@ -120,7 +120,11 @@ class SchemaValidator(Validator):
             # for subject, we have to ignore all data with scheme
             # as they are used for custom values except "subject_custom" scheme as it's the scheme for subject cv
             # so it must be present
-            subject_schemas = {None, '', 'subject_custom'}
+            subject_schemas = set([
+                None,
+                '',
+                'subject_custom',
+            ])
 
             # plus any cv with schema_field subject
             cvs = get_resource_service('vocabularies').get_from_mongo(
@@ -358,7 +362,10 @@ class ValidateService(superdesk.Service):
         return {field: get_validator_schema(schema) for field, schema in validator['schema'].items() if schema}
 
     def _get_vocabulary_display_name(self, vocabulary_id):
-        vocabulary = get_resource_service('vocabularies').find_one(req=None, _id=vocabulary_id)
+        if vocabulary_id == 'anpa_category':
+            vocabulary = get_resource_service('vocabularies').find_one(req=None, _id='categories')
+        else:
+            vocabulary = get_resource_service('vocabularies').find_one(req=None, _id=vocabulary_id)
         if vocabulary and 'display_name' in vocabulary:
             return vocabulary['display_name']
         return vocabulary_id

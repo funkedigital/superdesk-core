@@ -16,6 +16,7 @@ from unittest import mock
 
 import superdesk
 import superdesk.signals as signals
+
 from superdesk.errors import SuperdeskApiError
 from superdesk.tests import TestCase
 from superdesk.utc import utcnow
