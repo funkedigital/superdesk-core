@@ -46,14 +46,13 @@ class FUNKEXMLIFeedingService(HTTPFeedingServiceBase):
     def __init__(self):
         super().__init__()
 
-    def _test(self, provider):
-        config = self.config
-        self.provider = provider
-        url = config['url']
+    # def _test(self, provider=None):
+    #     config = self.config
+    #     url = config['url']
+    #
+    #     self.get_url(url)
 
-        self.get_url(url)
-
-    def _update(self, provider, update):
+    def _update(self, provider=None, update=None):
         parsed_items = []
 
         try:
