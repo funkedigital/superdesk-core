@@ -95,7 +95,7 @@ def _get_content_type(article):
         else:
             return ""
 
-def _get_data_layer(article, wordcount):
+def _get_data_layer(article):
     """Get the data layer infos"""
 
     data_layer = {}
@@ -108,7 +108,7 @@ def _get_data_layer(article, wordcount):
             data_layer['contentType'] = content_type
 
         # add word count
-        data_layer['wordcount'] = wordcount
+        data_layer['wordcount'] = 0
 
         # add internal links count
         internal_urls = re.findall('<a\s+href=["\']urn:newsml:localhost:([^"\']+)["\']',
@@ -316,7 +316,7 @@ class NINJSFormatter(Formatter):
 
         if 'extra' in ninjs:
             # get the data layer infos
-            data_layer = _get_data_layer(article, word_count)
+            data_layer = _get_data_layer(article)
             if data_layer:
                 ninjs["extra"].update({"dataLayer": data_layer})
             # get the unique name
