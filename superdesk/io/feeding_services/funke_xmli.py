@@ -48,8 +48,6 @@ class FUNKEXMLIFeedingService(HTTPFeedingService):
 
     def _test(self, provider=None):
         config = self.config
-        self.provider = provider
-        parser = self.get_feed_parser(provider)
         url = config['url']
 
         self.get_url(url)
