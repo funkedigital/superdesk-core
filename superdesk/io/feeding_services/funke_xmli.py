@@ -18,13 +18,13 @@ from datetime import datetime
 
 from superdesk.errors import IngestApiError, ParserError
 from superdesk.io.registry import register_feeding_service, register_feeding_service_parser
-from superdesk.io.feeding_services.http_service import HTTPFeedingService
+from superdesk.io.feeding_services.http_base_service import HTTPFeedingServiceBase
 from superdesk.io.feed_parsers import XMLIFeedParser
 
 utcfromtimestamp = datetime.utcfromtimestamp
 
 
-class FUNKEXMLIFeedingService(HTTPFeedingService):
+class FUNKEXMLIFeedingService(HTTPFeedingServiceBase):
     """
     Feeding Service class for FUNKE XMLI Feeding Service
     """
@@ -46,13 +46,14 @@ class FUNKEXMLIFeedingService(HTTPFeedingService):
     def __init__(self):
         super().__init__()
 
-    def _test(self, provider=None):
+    def _test(self, provider):
         config = self.config
+        self.provider = provider
         url = config['url']
 
         self.get_url(url)
 
-    def _update(self, provider=None, update=None):
+    def _update(self, provider, update):
         parsed_items = []
 
         try:
