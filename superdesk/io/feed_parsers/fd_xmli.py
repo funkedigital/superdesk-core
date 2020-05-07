@@ -88,10 +88,9 @@ class XMLIFeedParser(XMLFeedParser):
 
     def datetime(self, string):
         try:
-            article_dt = datetime.datetime.strptime(string, '%Y%m%dT%H%M%S+0200')
+            return datetime.datetime.strptime(string, '%Y%m%dT%H%M%S+0200')
         except ValueError:
-            article_dt = datetime.datetime.strptime(string, '%Y%m%dT%H%M%S+0100')
-        return article_dt.strftime('%Y-%m-%d %H:%M:%S.0')
+            return datetime.datetime.strptime(string, '%Y%m%dT%H%M%S+0100')
 
 
 register_feed_parser(XMLIFeedParser.NAME, XMLIFeedParser())
