@@ -12,6 +12,7 @@ from lxml import etree
 
 logger = logging.getLogger(__name__)
 
+
 class XMLIFeedParser(XMLFeedParser):
     """
     Feed parser for the Escenix XMLI
@@ -37,7 +38,6 @@ class XMLIFeedParser(XMLFeedParser):
             return items
         except Exception as ex:
             raise ParserError.newsmlTwoParserError(ex, provider)
-           
 
     def parse_news_identifier(self, items, tree):
         parsed_el = self.parse_elements(tree.find('NewsItem/Identification/NewsIdentifier'))
@@ -58,12 +58,12 @@ class XMLIFeedParser(XMLFeedParser):
             items['pubstatus'] = (parsed_el['Status']['FormalName']).lower()
 
     def parse_newslines(self, items, tree):
-        parsed_el = self.parse_elements(tree.find('NewsItem/NewsComponent/NewsLines'))   
+        parsed_el = self.parse_elements(tree.find('NewsItem/NewsComponent/NewsLines'))
         items['headline'] = parsed_el.get('HeadLine', '')
         items['slugline'] = parsed_el.get('SlugLine', '')
         items['byline'] = parsed_el.get('ByLine', '')
         items['copyrightline'] = parsed_el.get('CopyrightLine', '')
-    
+
     def parse_metadata(self, items, tree):
         parsed_el = self.parse_elements(tree.find('NewsItem/NewsComponent/Metadata'))
         items['metadatatype'] = parsed_el['MetadataType']['FormalName']
@@ -88,8 +88,10 @@ class XMLIFeedParser(XMLFeedParser):
 
     def datetime(self, string):
         try:
-            return datetime.datetime.strptime(string, '%Y%m%dT%H%M%S+0100')
+            article_dt = datetime.datetime.strptime(string, '%Y%m%dT%H%M%S+0200')
         except ValueError:
-            return datetime.datetime.strptime(string, '%Y-%m-%d %H:%M:%S.0').replace(tzinfo=utc)
+            article_dt = datetime.datetime.strptime(string, '%Y%m%dT%H%M%S+0100')
+        return article_dt.strftime('%Y-%m-%d %H:%M:%S.0')
+
 
 register_feed_parser(XMLIFeedParser.NAME, XMLIFeedParser())
