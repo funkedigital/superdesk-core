@@ -111,14 +111,14 @@ def _get_data_layer(article):
         data_layer['wordcount'] = 0
 
         # add internal links count
-        internal_urls = re.findall('<a\s+href=["\']urn:newsml:localhost:([^"\']+)["\']',
-                                   article.get('body_html'))
-        if internal_urls:
-            data_layer['internalLink'] = True
-            data_layer['InternalLinksCount'] = len(internal_urls)
-        else:
-            data_layer['internalLink'] = False
-            data_layer['InternalLinksCount'] = 0
+        #internal_urls = re.findall('<a\s+href=["\']urn:newsml:localhost:([^"\']+)["\']',
+        #                        article.get('body_html'))
+        #if internal_urls:
+        data_layer['internalLink'] = False
+        data_layer['InternalLinksCount'] = 0
+        #else:
+        #    data_layer['internalLink'] = False
+        #    data_layer['InternalLinksCount'] = 0
 
         item = list(
             superdesk.get_resource_service('archive_history').get(req=None, lookup={
@@ -316,9 +316,9 @@ class NINJSFormatter(Formatter):
 
         if 'extra' in ninjs:
             # get the data layer infos
-            #data_layer = _get_data_layer(article)
-            #if data_layer:
-            #    ninjs["extra"].update({"dataLayer": data_layer})
+            data_layer = _get_data_layer(article)
+            if data_layer:
+                ninjs["extra"].update({"dataLayer": data_layer})
             # get the unique name
             if article.get('unique_name'):
                 ninjs['extra'].update({'uniqueName': article.get('unique_name').replace('#', '')})
