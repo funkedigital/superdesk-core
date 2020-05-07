@@ -316,9 +316,9 @@ class NINJSFormatter(Formatter):
 
         if 'extra' in ninjs:
             # get the data layer infos
-            data_layer = _get_data_layer(article)
-            if data_layer:
-                ninjs["extra"].update({"dataLayer": data_layer})
+            #data_layer = _get_data_layer(article)
+            #if data_layer:
+            #    ninjs["extra"].update({"dataLayer": data_layer})
             # get the unique name
             if article.get('unique_name'):
                 ninjs['extra'].update({'uniqueName': article.get('unique_name').replace('#', '')})
